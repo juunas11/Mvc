@@ -149,10 +149,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             };
             var content = new FormUrlEncodedContent(nameValueCollection);
 
-            // Act 1
+            // Act
             var response = await Client.PostAsync($"{protocol}://localhost/TempData/SetTempData", content);
 
-            // Assert 1
+            // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             IEnumerable<string> setCookieValues;
             Assert.True(response.Headers.TryGetValues(HeaderNames.SetCookie, out setCookieValues));
