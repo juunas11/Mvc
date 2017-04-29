@@ -26,6 +26,17 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified challenge behavior.
+        /// </summary>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(ChallengeBehavior behavior)
+            : this(Array.Empty<string>(), behavior)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
         /// specified authentication scheme.
         /// </summary>
         /// <param name="authenticationScheme">The authentication scheme to challenge.</param>
@@ -36,11 +47,33 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified authentication scheme and challenge behavior.
+        /// </summary>
+        /// <param name="authenticationScheme">The authentication scheme to challenge.</param>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(string authenticationScheme, ChallengeBehavior behavior)
+            : this(new[] { authenticationScheme }, behavior)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
         /// specified authentication schemes.
         /// </summary>
         /// <param name="authenticationSchemes">The authentication schemes to challenge.</param>
         public ChallengeResult(IList<string> authenticationSchemes)
             : this(authenticationSchemes, properties: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified authentication schemes and challenge behavior.
+        /// </summary>
+        /// <param name="authenticationSchemes">The authentication schemes to challenge.</param>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(IList<string> authenticationSchemes, ChallengeBehavior behavior)
+            : this(authenticationSchemes, properties: null, behavior: behavior)
         {
         }
 
@@ -57,9 +90,21 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified <paramref name="properties"/> and challenge behavior.
+        /// </summary>
+        /// <param name="properties"><see cref="AuthenticationProperties"/> used to perform the authentication
+        /// challenge.</param>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(AuthenticationProperties properties, ChallengeBehavior behavior)
+            : this(Array.Empty<string>(), properties, behavior)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
         /// specified authentication scheme and <paramref name="properties"/>.
         /// </summary>
-        /// <param name="authenticationScheme">The authentication schemes to challenge.</param>
+        /// <param name="authenticationScheme">The authentication scheme to challenge.</param>
         /// <param name="properties"><see cref="AuthenticationProperties"/> used to perform the authentication
         /// challenge.</param>
         public ChallengeResult(string authenticationScheme, AuthenticationProperties properties)
@@ -69,15 +114,42 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified authentication scheme, <paramref name="properties"/> and challenge behavior.
+        /// </summary>
+        /// <param name="authenticationScheme">The authentication scheme to challenge.</param>
+        /// <param name="properties"><see cref="AuthenticationProperties"/> used to perform the authentication
+        /// challenge.</param>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(string authenticationScheme, AuthenticationProperties properties, ChallengeBehavior behavior)
+            : this(new[] { authenticationScheme }, properties, behavior)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
         /// specified authentication schemes and <paramref name="properties"/>.
         /// </summary>
-        /// <param name="authenticationSchemes">The authentication scheme to challenge.</param>
+        /// <param name="authenticationSchemes">The authentication schemes to challenge.</param>
         /// <param name="properties"><see cref="AuthenticationProperties"/> used to perform the authentication
         /// challenge.</param>
         public ChallengeResult(IList<string> authenticationSchemes, AuthenticationProperties properties)
+            : this(authenticationSchemes, properties, behavior: ChallengeBehavior.Automatic)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ChallengeResult"/> with the
+        /// specified authentication schemes, <paramref name="properties"/> and challenge behavior.
+        /// </summary>
+        /// <param name="authenticationSchemes">The authentication schemes to challenge.</param>
+        /// <param name="properties"><see cref="AuthenticationProperties"/> used to perform the authentication
+        /// challenge.</param>
+        /// <param name="behavior">The behavior to use when challenging authentication schemes.</param>
+        public ChallengeResult(IList<string> authenticationSchemes, AuthenticationProperties properties, ChallengeBehavior behavior)
         {
             AuthenticationSchemes = authenticationSchemes;
             Properties = properties;
+            Behavior = behavior;
         }
 
         /// <summary>
@@ -89,6 +161,11 @@ namespace Microsoft.AspNetCore.Mvc
         /// Gets or sets the <see cref="AuthenticationProperties"/> used to perform the authentication challenge.
         /// </summary>
         public AuthenticationProperties Properties { get; set; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ChallengeBehavior"/> used when challenging authentication schemes.
+        /// </summary>
+        public ChallengeBehavior Behavior { get; set; }
 
         /// <inheritdoc />
         public override async Task ExecuteResultAsync(ActionContext context)
@@ -107,12 +184,12 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 foreach (var scheme in AuthenticationSchemes)
                 {
-                    await context.HttpContext.ChallengeAsync(scheme, Properties);
+                    await context.HttpContext.ChallengeAsync(scheme, Properties, Behavior);
                 }
             }
             else
             {
-                await context.HttpContext.ChallengeAsync(Properties);
+                await context.HttpContext.ChallengeAsync(null, Properties, Behavior);
             }
         }
     }

@@ -14,11 +14,14 @@ namespace SecurityWebSite
             // Add framework services.
             services.AddMvc();
             services.AddAntiforgery();
-            services.AddCookieAuthentication(options => 
-            {
-                options.LoginPath = "/Home/Login";
-                options.LogoutPath = "/Home/Logout";
-            });
+            services.AddScheme<TestAuthenticationOptions, TestAuthenticationHandler>(
+                TestAuthenticationDefaults.AuthenticationScheme,
+                options =>
+                {
+                    options.LoginPath = "/Home/Login";
+                    options.LogoutPath = "/Home/Logout";
+                    options.AccessDeniedPath = "/Home/AccessDenied";
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

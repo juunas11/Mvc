@@ -37,5 +37,10 @@ namespace SecurityWebSite.Controllers
         {
             return Content("Logout!");
         }
+
+        public IActionResult AccessDenied()
+        {
+            return Content("Access denied!");
+        }
     }
 }
